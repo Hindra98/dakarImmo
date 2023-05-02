@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel Administrateur{% endblock %}
+
+{% block body %}
+    <div class="container my-4">
+        <div class="des w-100">
+            <span class="h1 text-start">Bannir des utilisateurs</span>
+            <a href="{{ path('app_admin_comment') }}" class="float-end h5">Voir les commentaires</a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Users</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for users in user %}
+                <tr>
+                    <td><a href=""> {{ users.email }} </a></td>
+                    <td>
+                        <form method="post" action="{{ path('app_admin_delete', {id: users.id}) }}" class="d-inline-block"
+                              onsubmit='return confirm("Voulez-vous vraiment supprimer \"{{ users.email }}\"?")'>
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ users.id) }}"/>
+                            <button class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                {% if page != 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ path('biens', {page: page-1}) }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+                    </li>
+                {% endif %}
+                {% if page == 1 %}
+                    <li class="page-item">
+                        <a class="page-link disabled" href="#"><span aria-hidden="true">&laquo;</span></a>
+                    </li>
+                {% endif %}
+                {% for i in range(1, nbrePage) %}
+                    <li class="page-item"><a class="page-link" href="{{ path('biens', {page: i}) }}">{{ i }}</a></li>
+                {% endfor %}
+
+                {% if page == nbrePage %}
+                    <li class="page-item">
+                        <a class="page-link disabled" href="#"><span aria-hidden="true">&raquo;</span></a>
+                    </li>
+                {% endif %}
+                {% if page != nbrePage %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ path('biens', {page: page+1}) }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

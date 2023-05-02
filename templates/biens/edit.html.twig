@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Edition du bien {{ biens.nom }} {% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="text-center">Editer le bien <span class="fw-bold">"{{ biens.nom }}"</span></h1>
+        {{ include('biens/_form.html.twig') }}
+        <div id="biens_photo">
+
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+
+    <script>
+        $('#biens_photo').fileupload();
+    </script>
+
+{% endblock %}
+
+

@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Detail du bien {{ bien.nom }} {% endblock %}
+
+{% block style %}
+    <style>
+        .desactiver button, .desactiver button:hover, .desactiver button:active {
+            border: 1px solid #999999;
+            background-color: #cccccc;
+            color: #666;
+            cursor: default;
+        }
+        div.gallerie .gallery li {
+            list-style: none;
+            height: 130px;
+            flex-grow: 1;
+        }
+        div.gallerie .gallery {
+            max-width: 78%;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .1rem;
+            padding: 0 5px;
+        }
+        div.gallerie .gallery img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        div.detail {
+            background-color: #eee;
+        }
+        div.detail span {
+            cursor: default !important;
+        }
+        div.bas {
+            max-width: 700px;
+        }
+        div.bas h2 {
+            text-decoration: underline;
+        }
+        div.bas div {
+            font-size: 1.2em;
+        }
+        div.bas div a {
+            text-decoration: none;
+        }
+        div.bas div i {
+            color: #777;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="mx-auto detail_bien container-lg">
+        <div class="row mb-3">
+            <div class="gallerie col-lg-7 col-md-6 col-12">
+                <ul class="gallery">
+                    {% for photo in photos %}
+                        <li><img src="{{ asset('assets/uploads/images_biens/' ~ photo.nom)}}" alt="{{ bien.nom }}"></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="detail col-lg-5 col-md-6 col-12">
+                <h4>{{ bien.nom }}</h4><br/><h5>{{ bien.adresse }}</h5><br/>
+                <h5>{{ bien.superficie }}m² pour {{ bien.prix }} &euro;</h5><br/><br/>
+                <div class="mb-3">
+                    <span class="btn btn-info me-1"><i class="fa-solid fa-upload"></i> Publié le {{ bien.dateCreation|date('d/m/Y') }}</span>
+                    <span class="btn btn-light"><i class="fa-solid fa-user"></i> Actif le {{ bien.proprietaires.utilisateur.updateAt|date('d/m/Y H:i:s') }}</span><br/>
+                </div>
+
+                {% if app.user %}
+                    <div class="mb-3 ">
+                        <a href="#contact" class="btn btn-info me-1">Contacter le proprio</a>
+
+                        <form method="post" action="{{ path('biens.fav', {id: bien.id, user: app.user.id}) }}" class="d-inline-block">
+                            <input type="hidden" name="_token" value="{{ csrf_token('fav' ~ bien.id) }}"/>
+                            {% for favori in fav %}
+                                {% if favori.utilisateur == app.user %}
+                                    <button class="btn btn-light ms-1"><i class="fa-solid fa-star fa-beat" style="color: #F00;"></i></button>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if favs is defined %}
+                                <button class="btn btn-light ms-1"><i class="fa-solid fa-star"></i></button>
+                            {% endif %}
+
+                        </form><br/>
+                    </div>
+                {% else %}
+                    <div class="mb-3 desactiver">
+                        <button type="button" class="btn me-1"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-custom-class="custom-tooltip"
+                                data-bs-title="Vous devez être connectés pour pouvoir contacter les proprios">
+                            Contacter le proprio
+                        </button>
+                        <button type="button" class="btn ms-1"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-custom-class="custom-tooltip"
+                                data-bs-title="Vous devez être connectés pour pouvoir ajouter des favoris">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="contact bas ms-2" id="contact">
+            <h2>Contact</h2>
+            {% if app.user %}
+                <p class="text-muted">Contactez le proprietaire du bien par l'un des moyens ci-dessous </p>
+                <div class="tel"><i class="fa-solid fa-phone"></i> <a href="tel:{{ bien.proprietaires.tel }}">{{ bien.proprietaires.tel }}</a> </div>
+                <div class="mail"><i class="fa-solid fa-envelope"></i>  <a href="mailto:{{ bien.proprietaires.utilisateur.email }}">{{ bien.proprietaires.utilisateur.email }}</a></div>
+
+                <form method="post" action="{{ path('app_message.send', {id: app.user.id, receive: bien.proprietaires.utilisateur.id}) }}" class="">
+                    <div class="my-3 chat">
+                        <label for="msg" class="form-label">Message</label>
+                        <textarea class="form-control" id="msg" rows="3" name="mess"></textarea>
+                        <button class="btn btn-primary w-100 my-2" type="submit">Envoyer</button>
+                    </div>
+                </form>
+            {% else %}
+                <p class="text-muted">Vous devez vous connecter pour contacter le proprietaire de ce bien</p>
+                <a class="btn btn-secondary" href="{{ path('app_login') }}">Connexion</a>&nbsp;&nbsp;
+                <a class="btn btn-outline-secondary" href="/inscription">Inscription</a>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+{% endblock %}
